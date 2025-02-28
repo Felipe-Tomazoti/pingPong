@@ -1,7 +1,7 @@
 let xCircle = 300;
 let yCircle = 200;
-let velocidadeBolinha = 10;
-let velocidadeBolinhaY = 10;
+let velocidadeBolinha = 5;
+let velocidadeBolinhaY = 5;
 let raio = 20;
 let diametro = 2 * raio;
 
@@ -9,6 +9,13 @@ let xRaquete = 10;
 let yRaquete = 150;
 let comprimentoRaquete = 10;
 let larguraRaquete = 100;
+
+let xRaqueteInimigo = 580;
+let yRaqueteInimigo = 150;
+let larguraRaqueteInimigo = 10;
+
+let golsCasa = 0; 
+let golsVisitante = 0; 
 
 function setup() {
     createCanvas(600, 400);
@@ -18,10 +25,14 @@ function draw() {
     background(0);
     criarBolinha();
     moverBolinha();
-    verificarLimiteBolinha();
+    verificarLimiteBolinha();  
     criarRaquete();
     moverRaquete();
-    verificarLimiteRaquete();
+    verificarLimiteRaquete(); 
+    criarRaqueteInimigo();
+    moverRaqueteInimigo();
+    verificarLimiteRaqueteInimigo(); 
+    mostrarPlacar();  
 }
 
 function criarBolinha() {
@@ -34,11 +45,22 @@ function moverBolinha() {
 }
 
 function verificarLimiteBolinha() {
-    if (xCircle + raio > width || xCircle - raio < 0) {
-        velocidadeBolinha *= -1;
+    if (xCircle + raio > width) {
+        xCircle = width - raio;  
+        velocidadeBolinha *= -1;  
+        golsCasa += 1;  
+    } else if (xCircle - raio < 0) {
+        xCircle = raio;  
+        velocidadeBolinha *= -1; 
+        golsVisitante += 1; 
     }
-    if (yCircle + raio > height || yCircle - raio < 0) {
-        velocidadeBolinhaY *= -1;
+
+    if (yCircle + raio > height) {
+        yCircle = height - raio;  
+        velocidadeBolinhaY *= -1;  
+    } else if (yCircle - raio < 0) {
+        yCircle = raio;  
+        velocidadeBolinhaY *= -1;  
     }
 }
 
@@ -58,9 +80,42 @@ function moverRaquete() {
 function verificarLimiteRaquete() {
     if (
         xCircle - raio < xRaquete + comprimentoRaquete &&
-        yCircle - raio < yRaquete + larguraRaquete &&
-        yCircle + raio > yRaquete
+        yCircle > yRaquete && 
+        yCircle < yRaquete + larguraRaquete
     ) {
-        velocidadeBolinha *= -1;
+        velocidadeBolinha *= -1; 
+        let dist = (yCircle - (yRaquete + larguraRaquete / 2)) / (larguraRaquete / 2);  
+        velocidadeBolinhaY = dist * 5; 
     }
+}
+
+function criarRaqueteInimigo() {
+    rect(xRaqueteInimigo, yRaqueteInimigo, larguraRaqueteInimigo, larguraRaquete);
+}
+
+function moverRaqueteInimigo() {
+    if (yRaqueteInimigo + larguraRaquete / 2 < yCircle) {
+        yRaqueteInimigo += 3;
+    } else if (yRaqueteInimigo + larguraRaquete / 2 > yCircle) {
+        yRaqueteInimigo -= 3;
+    }
+}
+
+function verificarLimiteRaqueteInimigo() {
+    if (
+        xCircle + raio > xRaqueteInimigo &&
+        yCircle > yRaqueteInimigo && 
+        yCircle < yRaqueteInimigo + larguraRaquete
+    ) {
+        velocidadeBolinha *= -1;  
+        let dist = (yCircle - (yRaqueteInimigo + larguraRaquete / 2)) / (larguraRaquete / 2);  
+        velocidadeBolinhaY = dist * 5;  
+    }
+}
+
+function mostrarPlacar() {
+    fill(255);
+    textSize(32);
+    textAlign(CENTER, TOP);
+    text('Casa: ' + golsCasa + '  X  Visitante: ' + golsVisitante, width / 2, 20);
 }
